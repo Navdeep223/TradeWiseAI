@@ -14,8 +14,6 @@ __pycache__/
 data/raw/
 # VS Code
 .vscode/
-venv/
-__pycache__/
-*.pyc
+
 
 data/processed/*.csv
