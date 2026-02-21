@@ -1,14 +1,17 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from typing import Optional
 import os
 
+from services.origin_optimizer import recommend_origin
 from services.hs_classifier import classify_hs_code
 from tariff_engine import TariffEngine
 
 app = FastAPI(title="TradeWise AI")
 
-
-# ---- Load Global Tariff Table ----
+# --------------------------------------------------
+# Load Tariff Table (Manual Route Engine)
+# --------------------------------------------------
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -23,109 +26,155 @@ GLOBAL_TARIFF_PATH = os.path.join(
 engine = TariffEngine(GLOBAL_TARIFF_PATH)
 
 
-# ---- Request Model ----
+# ==================================================
+# STEP 1: HS RANKING ENDPOINT
+# ==================================================
 
-class ProductRequest(BaseModel):
+class HSRequest(BaseModel):
     description: str
-    origin_country: str
 
 
-# ---- Endpoint ----
+@app.post("/rank-hs")
+def rank_hs(request: HSRequest):
 
-@app.post("/analyze-product")
-def analyze_product(request: ProductRequest):
+    results = classify_hs_code(request.description)
 
-    classification_results = classify_hs_code(request.description)
-    top_hs6 = classification_results[0]["hs_code"]
+    if not results:
+        raise HTTPException(status_code=400, detail="Unable to classify product")
 
-    origin = request.origin_country.strip()
+    # Return top 3 ranked HS codes only
+    ranked = []
 
-    valid_routes = []
-    direct_result = None
-
-    # ---- DIRECT ROUTE ----
-    try:
-        direct_result = engine.calculate_route(
-            [origin, "India"],
-            top_hs6
-        )
-        valid_routes.append({
-            "type": "direct",
-            **direct_result
+    for item in results[:3]:
+        ranked.append({
+            "hs_code": item["hs_code"],
+            "confidence": item.get("confidence", None)
         })
-    except:
-        pass
-
-
-    # ---- FIND TRANSIT OPTIONS ----
-    possible_transits = engine.df[
-        engine.df["exporter"] == origin
-    ]["importer"].unique()
-
-    possible_transits = [
-        country for country in possible_transits
-        if country not in ["India", origin]
-    ]
-
-    for transit in possible_transits:
-        try:
-            result = engine.calculate_route(
-                [origin, transit, "India"],
-                top_hs6
-            )
-            valid_routes.append({
-                "type": "alternate",
-                **result
-            })
-        except:
-            continue
-
-
-    valid_routes = [
-        r for r in valid_routes
-        if isinstance(r.get("total_tariff"), (int, float))
-    ]
-
-    if not valid_routes:
-        return {
-            "classification": classification_results,
-            "message": "No valid tariff routes found."
-        }
-
-    # ---- FIND BEST ROUTE ----
-    best_route = min(valid_routes, key=lambda x: x["total_tariff"])
-
-    savings_info = None
-
-    if direct_result and best_route:
-
-        direct_tariff = direct_result["total_tariff"]
-        best_tariff = best_route["total_tariff"]
-
-        difference = round(direct_tariff - best_tariff, 4)
-
-        if difference > 0:
-            percentage_saving = round((difference / direct_tariff) * 100, 2) if direct_tariff != 0 else 0
-
-            savings_info = {
-                "direct_tariff": direct_tariff,
-                "best_route_tariff": best_tariff,
-                "absolute_saving": difference,
-                "percentage_saving": percentage_saving
-            }
-
-    recommendation = None
-
-    if best_route["type"] == "direct":
-        recommendation = "Direct import is the most cost-efficient option."
-    else:
-        recommendation = "Alternate route is cheaper than direct import."
 
     return {
-        "classification": classification_results,
-        "direct_route": direct_result,
-        "best_route": best_route,
-        "all_valid_routes": valid_routes,
-        "savings_analysis": savings_info,
-        "recommendation": recommendation
+        "ranked_hs_codes": ranked
     }
+
+
+# ==================================================
+# STEP 2: ANALYSIS USING SELECTED HS
+# ==================================================
+
+class AnalyzeRequest(BaseModel):
+    selected_hs: str
+    destination_country: str
+    cost_price: float
+    mode: str  # "manual" or "ai"
+    origin_country: Optional[str] = None
+
+
+@app.post("/analyze-selected-hs")
+def analyze_selected_hs(request: AnalyzeRequest):
+
+    try:
+        hs_code = request.selected_hs.zfill(6)
+        destination = request.destination_country.title()
+        base_cost = request.cost_price
+
+        if destination.lower() != "india":
+            raise HTTPException(
+                status_code=400,
+                detail="Currently only India as importing country is supported."
+            )
+
+        # ======================
+        # MANUAL MODE
+        # ======================
+        if request.mode.lower() == "manual":
+
+            if not request.origin_country:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Origin country required in manual mode."
+                )
+
+            origin = request.origin_country.title()
+
+            # Direct route
+            direct = engine.calculate_route(
+                [origin, destination],
+                hs_code
+            )
+
+            if direct["total_tariff"] is None:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Tariff data unavailable for selected origin."
+                )
+
+            direct["landing_cost"] = round(
+                base_cost * (1 + direct["total_tariff"] / 100),
+                2
+            )
+
+            # Alternate routes
+            transit_countries = ["Japan", "Vietnam", "UAE", "Korea"]
+            alternates = []
+
+            for country in transit_countries:
+                if country in [origin, destination]:
+                    continue
+
+                route = [origin, country, destination]
+                result = engine.calculate_route(route, hs_code)
+
+                if result["total_tariff"] is None:
+                    continue
+
+                result["landing_cost"] = round(
+                    base_cost * (1 + result["total_tariff"] / 100),
+                    2
+                )
+
+                alternates.append(result)
+
+            alternates = sorted(alternates, key=lambda x: x["total_tariff"])[:3]
+
+            return {
+                "mode": "manual",
+                "selected_hs": hs_code,
+                "direct_route": direct,
+                "alternate_routes": alternates
+            }
+
+        # ======================
+        # AI MODE
+        # ======================
+        elif request.mode.lower() == "ai":
+
+            optimization = recommend_origin(hs_code)
+
+            if "error" in optimization:
+                raise HTTPException(status_code=400, detail=optimization["error"])
+
+            min_tariff = optimization["min_tariff"]
+
+            landing_cost = round(
+                base_cost * (1 + min_tariff / 100),
+                2
+            )
+
+            return {
+                "mode": "ai",
+                "selected_hs": hs_code,
+                "recommended_origin": optimization["recommended_country"],
+                "final_tariff_percent": min_tariff,
+                "spread_percent": optimization["spread"],
+                "arbitrage_level": optimization["arbitrage_level"],
+                "estimated_landing_cost": landing_cost,
+                "comparison_table": optimization["comparison"]
+            }
+
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid mode. Choose 'manual' or 'ai'."
+            )
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
