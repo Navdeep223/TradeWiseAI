@@ -1,0 +1,16 @@
+# Virtual environments
+venv/
+backend2/venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Environment variables
+.env
+
+# Large raw datasets
+
+data/raw/
+# VS Code
+.vscode/
