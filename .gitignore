@@ -17,3 +17,4 @@ data/raw/
 
 
 data/processed/*.csv
+data/processed/*.xlsx
