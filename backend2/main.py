@@ -7,6 +7,7 @@ from services.origin_optimizer import recommend_origin
 from services.hs_classifier import classify_hs_code
 from tariff_engine import TariffEngine
 
+
 app = FastAPI(title="TradeWise AI")
 
 # --------------------------------------------------
@@ -30,6 +31,10 @@ engine = TariffEngine(GLOBAL_TARIFF_PATH)
 # STEP 1: HS RANKING ENDPOINT
 # ==================================================
 
+# ==================================================
+# STEP 1: HS RANKING ENDPOINT
+# ==================================================
+
 class HSRequest(BaseModel):
     description: str
 
@@ -42,13 +47,15 @@ def rank_hs(request: HSRequest):
     if not results:
         raise HTTPException(status_code=400, detail="Unable to classify product")
 
-    # Return top 3 ranked HS codes only
     ranked = []
 
     for item in results[:3]:
         ranked.append({
+            "rank": item["rank"],
             "hs_code": item["hs_code"],
-            "confidence": item.get("confidence", None)
+            "description": item["hs_description"],
+            "confidence": item["confidence"],
+            "confidence_pct": item["confidence_pct"]
         })
 
     return {
@@ -159,6 +166,8 @@ def analyze_selected_hs(request: AnalyzeRequest):
                 2
             )
 
+            
+
             return {
                 "mode": "ai",
                 "selected_hs": hs_code,
@@ -167,7 +176,8 @@ def analyze_selected_hs(request: AnalyzeRequest):
                 "spread_percent": optimization["spread"],
                 "arbitrage_level": optimization["arbitrage_level"],
                 "estimated_landing_cost": landing_cost,
-                "comparison_table": optimization["comparison"]
+                "comparison_table": optimization["comparison"],
+                
             }
 
         else:
