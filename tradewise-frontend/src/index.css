@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(126,224,129,0.08), transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(20,92,76,0.2), transparent 50%),
+    linear-gradient(135deg, #061c17 0%, #0b2e26 50%, #0f3d33 100%);
+  color: white;
+}
