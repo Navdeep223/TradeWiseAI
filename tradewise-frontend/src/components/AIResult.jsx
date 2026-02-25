@@ -24,14 +24,10 @@ function AIResult({ result, setStep }) {
     selected_hs
   } = result;
 
-  // 🔥 Normalize comparison table safely
+  // ✅ Now graph is based on LANDED COST
   const chartData = (comparison_table || []).map(item => ({
     country: item.country,
-    tariff:
-      item.tariff_percent ??
-      item.total_tariff ??
-      item.tariff ??
-      0
+    landedCost: item.landed_cost ?? 0
   }));
 
   return (
@@ -43,7 +39,6 @@ function AIResult({ result, setStep }) {
 
         <div className="bg-white/10 backdrop-blur-3xl border border-white/20 rounded-3xl p-12 shadow-[0_40px_100px_rgba(0,0,0,0.6)]">
 
-          {/* HEADER */}
           <div className="flex justify-between items-center mb-10">
             <button
               onClick={() => setStep(1)}
@@ -59,7 +54,6 @@ function AIResult({ result, setStep }) {
             <div />
           </div>
 
-          {/* BEST ROUTE */}
           <div className="mb-10 p-8 rounded-2xl bg-gradient-to-r from-[#0f6d5e] to-[#0c4f44] border border-[#6ee7b7]/40 shadow-lg">
 
             <h3 className="text-xl text-white mb-4 font-semibold">
@@ -72,6 +66,12 @@ function AIResult({ result, setStep }) {
 
             <p className="text-white text-lg">
               Final Tariff: <span className="text-[#8ff5b0]">{final_tariff_percent}%</span>
+            </p>
+
+            <p className="text-white text-lg">
+              Freight Cost: <span className="text-[#8ff5b0]">
+                ₹{result.freight_cost_usd ?? 0}
+              </span>
             </p>
 
             <p className="text-white text-xl font-bold mt-2">
@@ -88,29 +88,35 @@ function AIResult({ result, setStep }) {
 
           </div>
 
-          {/* GRAPH */}
           {chartData.length > 0 && (
             <div className="h-[350px] bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6">
-
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#ffffff22" />
                   <XAxis dataKey="country" stroke="#ffffffcc" />
-                  <YAxis domain={[0, "auto"]} stroke="#ffffffcc" />
-                  <Tooltip />
+                  <YAxis stroke="#ffffffcc" />
+                  <Tooltip
+  cursor={{ fill: "transparent" }}   // 🔥 This removes white hover background
+  contentStyle={{
+    backgroundColor: "#062f2a",
+    border: "1px solid #6ee7b7",
+    borderRadius: "10px",
+    color: "white"
+  }}
+  itemStyle={{ color: "white" }}
+  labelStyle={{ color: "#8ff5b0" }}
+/>
                   <Bar
-                    dataKey="tariff"
+                    dataKey="landedCost"
                     fill="#6ee7b7"
                     radius={[10, 10, 0, 0]}
                     animationDuration={1200}
                   />
                 </BarChart>
               </ResponsiveContainer>
-
             </div>
           )}
 
-          {/* SUMMARY */}
           <div className="mt-8 text-white/80">
             <p>HS Code: {selected_hs}</p>
           </div>

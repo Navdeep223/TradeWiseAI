@@ -38,7 +38,17 @@ function HSSelector({ rankedHS, setSelectedHS, setStep }) {
           <BarChart data={chartData}>
             <XAxis dataKey="hs" stroke="#a7f3d0" />
             <YAxis domain={[0, 100]} stroke="#a7f3d0" />
-            <Tooltip />
+            <Tooltip
+  cursor={{ fill: "transparent" }}   // 🔥 This removes white hover background
+  contentStyle={{
+    backgroundColor: "#062f2a",
+    border: "1px solid #6ee7b7",
+    borderRadius: "10px",
+    color: "white"
+  }}
+  itemStyle={{ color: "white" }}
+  labelStyle={{ color: "#8ff5b0" }}
+/>
             <Bar dataKey="confidence" fill="#34d399" radius={[6, 6, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>

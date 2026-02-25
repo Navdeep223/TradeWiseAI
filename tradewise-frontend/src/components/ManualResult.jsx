@@ -16,14 +16,12 @@ function ManualResult({ result, setStep }) {
 
   const { direct_route, alternate_routes = [], selected_hs } = result;
 
-  // SAFELY handle route whether string or array
   const formatRoute = (route) => {
     if (!route) return "N/A";
     if (Array.isArray(route)) return route.join(" → ");
-    return route; // already string
+    return route;
   };
 
-  // Prepare chart data safely
   const chartData = [
     {
       route: formatRoute(direct_route.route),
@@ -48,7 +46,6 @@ function ManualResult({ result, setStep }) {
 
         <div className="bg-white/10 backdrop-blur-3xl border border-white/20 rounded-3xl p-12 shadow-[0_40px_100px_rgba(0,0,0,0.6)]">
 
-          {/* Header */}
           <div className="flex justify-between items-center mb-10">
             <button
               onClick={() => setStep(1)}
@@ -64,7 +61,6 @@ function ManualResult({ result, setStep }) {
             <div />
           </div>
 
-          {/* Graph */}
           <div className="mb-10">
             <div className="h-[320px] bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6">
               <ResponsiveContainer width="100%" height="100%">
@@ -72,7 +68,17 @@ function ManualResult({ result, setStep }) {
                   <CartesianGrid strokeDasharray="3 3" stroke="#ffffff22" />
                   <XAxis dataKey="route" stroke="#ffffffcc" />
                   <YAxis stroke="#ffffffcc" />
-                  <Tooltip />
+                  <Tooltip
+  cursor={{ fill: "transparent" }}   // 🔥 This removes white hover background
+  contentStyle={{
+    backgroundColor: "#062f2a",
+    border: "1px solid #6ee7b7",
+    borderRadius: "10px",
+    color: "white"
+  }}
+  itemStyle={{ color: "white" }}
+  labelStyle={{ color: "#8ff5b0" }}
+/>
                   <Bar
                     dataKey="landedCost"
                     fill="#6ee7b7"
@@ -84,17 +90,19 @@ function ManualResult({ result, setStep }) {
             </div>
           </div>
 
-          {/* Direct Route */}
           <div className="mb-6 text-white">
             <h3 className="text-lg mb-2 font-semibold text-[#8ff5b0]">
               Direct Route
             </h3>
             <p>Route: {formatRoute(direct_route.route)}</p>
             <p>Total Tariff: {direct_route.total_tariff}%</p>
+
+            {/* ✅ Freight Added */}
+            <p>Freight Cost: ₹{direct_route.freight_cost_usd ?? 0}</p>
+
             <p>Landing Cost: ₹{direct_route.landing_cost}</p>
           </div>
 
-          {/* Alternate Routes */}
           {alternate_routes.length > 0 && (
             <div className="mb-10 text-white">
               <h3 className="text-lg mb-4 font-semibold text-[#8ff5b0]">
@@ -109,9 +117,14 @@ function ManualResult({ result, setStep }) {
                   >
                     <div className="flex justify-between">
                       <span>{formatRoute(route.route)}</span>
-                      <span className="text-[#8ff5b0] font-semibold">
-                        ₹{route.landing_cost}
-                      </span>
+                      <div className="text-right">
+                        <div className="text-[#8ff5b0] font-semibold">
+                          ₹{route.landing_cost}
+                        </div>
+                        <div className="text-white/60 text-sm">
+                          Freight: ₹{route.freight_cost_usd ?? 0}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -119,7 +132,6 @@ function ManualResult({ result, setStep }) {
             </div>
           )}
 
-          {/* Suggested Route */}
           <div className="p-8 rounded-2xl bg-gradient-to-r from-[#0f6d5e] to-[#0c4f44] border border-[#6ee7b7]/40 shadow-lg">
 
             <h3 className="text-xl text-white mb-4 font-semibold">

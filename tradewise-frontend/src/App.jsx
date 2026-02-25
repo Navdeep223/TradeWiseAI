@@ -28,7 +28,7 @@ function App() {
     <div className="flex min-h-screen bg-gradient-to-br from-[#042f2e] via-[#064e3b] to-[#022c22]">
 
       {/* Sidebar */}
-      <Sidebar step={step} />
+      <Sidebar step={step} setStep={setStep} />
 
       {/* Main Content */}
       <div className="flex-1 p-10 flex justify-center items-start">

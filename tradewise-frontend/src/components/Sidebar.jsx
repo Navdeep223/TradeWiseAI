@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 
-function Sidebar({ step }) {
+function Sidebar({ step, setStep }) {
+
   const steps = [
     "Product",
     "HS Selection",
@@ -18,11 +19,12 @@ function Sidebar({ step }) {
 
         <div className="space-y-6">
           {steps.map((item, index) => {
-            const isActive = step === index;
+            const isActive = step === index + 1;
 
             return (
               <motion.div
                 key={index}
+                onClick={() => setStep(index + 1)}
                 className={`relative flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer transition-all duration-300 ${
                   isActive
                     ? "bg-white/10 text-[#7ee081]"
