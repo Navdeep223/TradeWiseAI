@@ -14,12 +14,19 @@ function AnalysisConfig({
   setStep
 }) {
 
+  const [numContainers, setNumContainers] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleAnalyze = async () => {
-    if (!costPrice || !mode) {
+
+    if (!costPrice || !mode || !numContainers) {
       setError("Fill all required fields.");
+      return;
+    }
+
+    if (numContainers < 1) {
+      setError("Number of containers must be at least 1.");
       return;
     }
 
@@ -42,6 +49,7 @@ function AnalysisConfig({
           destination_country: "India",
           cost_price: parseFloat(costPrice),
           mode: mode,
+          num_containers: parseInt(numContainers),
           origin_country: mode === "manual" ? originCountry : null
         })
       });
@@ -74,14 +82,31 @@ function AnalysisConfig({
         ← Back
       </button>
 
-      <div className="bg-white/10 p-6 rounded-xl border border-emerald-400/20 space-y-4">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleAnalyze();
+        }}
+        className="bg-white/10 p-6 rounded-xl border border-emerald-400/20 space-y-4"
+      >
 
         <div>
-          <label className="block mb-2">Cost Price</label>
+          <label className="block mb-2">Cost Price (Per Container)</label>
           <input
             type="number"
             value={costPrice}
             onChange={(e) => setCostPrice(e.target.value)}
+            className="w-full p-3 rounded-lg bg-black/30 border border-emerald-400/30"
+          />
+        </div>
+
+        <div>
+          <label className="block mb-2">Number of Containers</label>
+          <input
+            type="number"
+            min="1"
+            value={numContainers}
+            onChange={(e) => setNumContainers(e.target.value)}
             className="w-full p-3 rounded-lg bg-black/30 border border-emerald-400/30"
           />
         </div>
@@ -120,14 +145,14 @@ function AnalysisConfig({
         {error && <p className="text-red-400">{error}</p>}
 
         <button
-          onClick={handleAnalyze}
+          type="submit"
           disabled={loading}
           className="w-full py-4 bg-emerald-500 rounded-xl font-semibold hover:opacity-90"
         >
           {loading ? "Analyzing..." : "Run Analysis"}
         </button>
 
-      </div>
+      </form>
     </div>
   );
 }
