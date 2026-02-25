@@ -34,9 +34,6 @@ function Hero({ setRankedHS, setStep }) {
 
       const data = await response.json();
 
-      // Your backend returns:
-      // { ranked_hs_codes: [...] }
-
       if (!data.ranked_hs_codes || data.ranked_hs_codes.length === 0) {
         throw new Error("No HS codes returned.");
       }
@@ -69,6 +66,12 @@ function Hero({ setRankedHS, setStep }) {
           onChange={(e) => setInput(e.target.value)}
           placeholder="Describe your product..."
           rows={4}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();      // Prevent newline
+              e.currentTarget.form.requestSubmit();  // Proper form submit
+            }
+          }}
           className="w-full p-4 rounded-xl bg-white/10 text-white placeholder-emerald-200 border border-emerald-400/30 focus:outline-none focus:ring-2 focus:ring-emerald-400 resize-none"
         />
 
