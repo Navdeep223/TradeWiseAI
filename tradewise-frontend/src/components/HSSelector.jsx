@@ -1,6 +1,6 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
-function HSSelector({ rankedHS, setSelectedHS, setStep }) {
+function HSSelector({ rankedHS, hsExplanation, setSelectedHS, setStep }) {
 
   // Convert confidence to percentage
   const chartData = rankedHS.map(item => ({
@@ -39,20 +39,32 @@ function HSSelector({ rankedHS, setSelectedHS, setStep }) {
             <XAxis dataKey="hs" stroke="#a7f3d0" />
             <YAxis domain={[0, 100]} stroke="#a7f3d0" />
             <Tooltip
-  cursor={{ fill: "transparent" }}   // 🔥 This removes white hover background
-  contentStyle={{
-    backgroundColor: "#062f2a",
-    border: "1px solid #6ee7b7",
-    borderRadius: "10px",
-    color: "white"
-  }}
-  itemStyle={{ color: "white" }}
-  labelStyle={{ color: "#8ff5b0" }}
-/>
+              cursor={{ fill: "transparent" }}
+              contentStyle={{
+                backgroundColor: "#062f2a",
+                border: "1px solid #6ee7b7",
+                borderRadius: "10px",
+                color: "white"
+              }}
+              itemStyle={{ color: "white" }}
+              labelStyle={{ color: "#8ff5b0" }}
+            />
             <Bar dataKey="confidence" fill="#34d399" radius={[6, 6, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
+
+      {/* 🔥 HS EXPLANATION SECTION */}
+      {hsExplanation && (
+        <div className="mb-8 bg-black/30 p-6 rounded-2xl border border-emerald-400/30">
+          <h3 className="text-xl font-semibold text-emerald-400 mb-3">
+            🧠 HS Classification Insight
+          </h3>
+          <div className="text-white whitespace-pre-line leading-relaxed">
+            {hsExplanation}
+          </div>
+        </div>
+      )}
 
       {/* HS Options */}
       <div className="space-y-4">

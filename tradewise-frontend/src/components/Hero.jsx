@@ -2,7 +2,7 @@ import { useState } from "react";
 
 const BASE_URL = "http://localhost:8000";
 
-function Hero({ setRankedHS, setStep }) {
+function Hero({ setRankedHS, setHsExplanation, setStep }) {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -39,6 +39,7 @@ function Hero({ setRankedHS, setStep }) {
       }
 
       setRankedHS(data.ranked_hs_codes);
+setHsExplanation(data.hs_explanation || ""); 
       setStep(2);
     } catch (err) {
       console.error("ERROR:", err);

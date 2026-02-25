@@ -12,6 +12,7 @@ function App() {
 
   // Step 1
   const [rankedHS, setRankedHS] = useState([]);
+  const [hsExplanation, setHsExplanation] = useState("");   // ✅ ADDED
 
   // Step 2
   const [selectedHS, setSelectedHS] = useState(null);
@@ -50,6 +51,7 @@ function App() {
           {step === 1 && (
             <Hero
               setRankedHS={setRankedHS}
+              setHsExplanation={setHsExplanation}   
               setStep={setStep}
             />
           )}
@@ -58,6 +60,7 @@ function App() {
           {step === 2 && (
             <HSSelector
               rankedHS={rankedHS}
+              hsExplanation={hsExplanation}   
               setSelectedHS={setSelectedHS}
               setStep={setStep}
             />
@@ -67,6 +70,7 @@ function App() {
           {step === 3 && (
             <AnalysisConfig
               selectedHS={selectedHS}
+              rankedHS={rankedHS}
               costPrice={costPrice}
               setCostPrice={setCostPrice}
               mode={mode}

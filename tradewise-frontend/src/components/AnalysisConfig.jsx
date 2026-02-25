@@ -4,6 +4,7 @@ const BASE_URL = "http://localhost:8000";
 
 function AnalysisConfig({
   selectedHS,
+  rankedHS, // ✅ ADDED (LLM support only)
   costPrice,
   setCostPrice,
   mode,
@@ -50,7 +51,18 @@ function AnalysisConfig({
           cost_price: parseFloat(costPrice),
           mode: mode,
           num_containers: parseInt(numContainers),
-          origin_country: mode === "manual" ? originCountry : null
+          origin_country: mode === "manual" ? originCountry : null,
+
+          // ===============================
+          // ✅ LLM HS EXPLANATION SUPPORT
+          // ===============================
+          top_matches: rankedHS
+            ? rankedHS.map(item => ({
+                hs_code: item.hs_code,
+                hs_description: item.description,
+                similarity_score: item.confidence
+              }))
+            : []
         })
       });
 

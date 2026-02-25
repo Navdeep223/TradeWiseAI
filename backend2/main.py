@@ -1,12 +1,17 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List, Dict
 import os
 
 from services.origin_optimizer import recommend_origin
 from services.hs_classifier import classify_hs_code
 from services.freight_engine import get_freight_rate
+from services.llm_service import (
+    generate_hs_explanation,
+    generate_ai_route_explanation,
+    generate_manual_route_explanation
+)
 from tariff_engine import TariffEngine
 
 
@@ -40,7 +45,6 @@ GLOBAL_TARIFF_PATH = os.path.join(
 
 engine = TariffEngine(GLOBAL_TARIFF_PATH)
 
-
 # ==================================================
 # STEP 1: HS RANKING
 # ==================================================
@@ -67,10 +71,13 @@ def rank_hs(request: HSRequest):
             "confidence": item["confidence"]
         })
 
-    return {
-        "ranked_hs_codes": ranked
-    }
+    # ✅ HS Explanation Added
+    hs_explanation = generate_hs_explanation(ranked)
 
+    return {
+        "ranked_hs_codes": ranked,
+        "hs_explanation": hs_explanation
+    }
 
 # ==================================================
 # STEP 2: ANALYSIS
@@ -83,6 +90,7 @@ class AnalyzeRequest(BaseModel):
     mode: str
     num_containers: int = 1
     origin_country: Optional[str] = None
+    top_matches: Optional[List[Dict]] = None
 
 
 @app.post("/analyze-selected-hs")
@@ -99,7 +107,6 @@ def analyze_selected_hs(request: AnalyzeRequest):
             detail="Currently only India supported as importing country."
         )
 
-    # Total goods value scales with containers
     total_goods_value = base_cost * num_containers
 
     # ==================================================
@@ -150,15 +157,40 @@ def analyze_selected_hs(request: AnalyzeRequest):
 
         alternates = sorted(alternates, key=lambda x: x["landing_cost"])[:3]
 
+        second_best = alternates[0] if alternates else None
+
+        explanation_data = {
+            "recommended_country": origin,
+            "comparison_country": second_best["route"][1] if second_best else "N/A",
+            "landed_cost_recommended": direct["landing_cost"],
+            "landed_cost_comparison": second_best["landing_cost"] if second_best else 0,
+            "cost_difference_percent": round(
+                ((second_best["landing_cost"] - direct["landing_cost"]) /
+                 second_best["landing_cost"]) * 100,
+                2
+            ) if second_best else 0,
+            "tariff_rate_recommended": direct["total_tariff"],
+            "tariff_rate_comparison": second_best["total_tariff"] if second_best else 0,
+            "freight_cost_recommended": direct["freight_cost_usd"],
+            "freight_cost_comparison": second_best["freight_cost_usd"] if second_best else 0,
+            "risk_score": 0,
+            "main_risk_driver": "Tariff variation",
+            "most_sensitive_variable": "Freight rate",
+            "mode": "Manual"
+        }
+
+        explanation = generate_manual_route_explanation(explanation_data)
+
         return {
             "mode": "manual",
             "selected_hs": hs_code,
             "direct_route": direct,
-            "alternate_routes": alternates
+            "alternate_routes": alternates,
+            "explanation": explanation
         }
 
     # ==================================================
-    # AI MODE (FULL LANDED COST BASED)
+    # AI MODE
     # ==================================================
 
     elif request.mode.lower() == "ai":
@@ -167,9 +199,6 @@ def analyze_selected_hs(request: AnalyzeRequest):
 
         if "error" in optimization:
             raise HTTPException(status_code=400, detail=optimization["error"])
-
-        recommended_origin = optimization["recommended_country"]
-        min_tariff = optimization["min_tariff"]
 
         enriched_comparison = []
 
@@ -192,21 +221,43 @@ def analyze_selected_hs(request: AnalyzeRequest):
                 "landed_cost": landed_cost
             })
 
-        recommended_data = next(
-            (x for x in enriched_comparison if x["country"] == recommended_origin),
-            None
-        )
+        sorted_comparison = sorted(enriched_comparison, key=lambda x: x["landed_cost"])
+
+        best = sorted_comparison[0]
+        second = sorted_comparison[1] if len(sorted_comparison) > 1 else None
+
+        cost_diff_percent = round(
+            ((second["landed_cost"] - best["landed_cost"]) /
+             second["landed_cost"]) * 100,
+            2
+        ) if second else 0
+
+        explanation_data = {
+            "recommended_country": best["country"],
+            "comparison_country": second["country"] if second else "N/A",
+            "landed_cost_recommended": best["landed_cost"],
+            "landed_cost_comparison": second["landed_cost"] if second else 0,
+            "cost_difference_percent": cost_diff_percent,
+            "tariff_rate_recommended": best["tariff_percent"],
+            "tariff_rate_comparison": second["tariff_percent"] if second else 0,
+            "freight_cost_recommended": best["freight_cost_usd"],
+            "freight_cost_comparison": second["freight_cost_usd"] if second else 0,
+            "risk_score": 0,
+            "main_risk_driver": "Tariff differential",
+            "most_sensitive_variable": "Freight rate",
+            "mode": "AI"
+        }
+
+        explanation = generate_ai_route_explanation(explanation_data)
 
         return {
             "mode": "ai",
             "selected_hs": hs_code,
-            "recommended_origin": recommended_origin,
-            "final_tariff_percent": min_tariff,
-            "spread_percent": optimization["spread"],
-            "arbitrage_level": optimization["arbitrage_level"],
-            "freight_cost_usd": recommended_data["freight_cost_usd"] if recommended_data else 0,
-            "estimated_landing_cost": recommended_data["landed_cost"] if recommended_data else 0,
-            "comparison_table": enriched_comparison
+            "recommended_origin": best["country"],
+            "freight_cost_usd": best["freight_cost_usd"],
+            "estimated_landing_cost": best["landed_cost"],
+            "comparison_table": enriched_comparison,
+            "explanation": explanation
         }
 
     else:
