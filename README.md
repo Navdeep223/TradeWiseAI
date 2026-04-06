@@ -1,4 +1,5 @@
-TradeWise AI
+# TradeWiseAI
+
 AI-Powered Tariff Intelligence and Trade Optimization System
 
 Overview
@@ -78,3 +79,6 @@ HS6 code classification from product descriptions
 Master tariff matrix generation
 Clean multi-country tariff comparison
 Structured backend-ready data architecture
+=======
+# TradeWiseAI
+>>>>>>> 191a11fb59924c4d0a380867a28e6c841ca87214
