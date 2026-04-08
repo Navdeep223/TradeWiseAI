@@ -5,8 +5,7 @@ from pathlib import Path
 # Load dataset once (on module load)
 # --------------------------------------------------
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_PATH = PROJECT_ROOT / "data" / "processed" / "india_import_tariffs_long.csv"
 
 df = pd.read_csv(DATA_PATH)

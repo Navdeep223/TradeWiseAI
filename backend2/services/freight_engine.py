@@ -5,7 +5,7 @@ import pandas as pd
 # Resolve project root correctly (MAKEATHON level)
 # -------------------------------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(os.path.dirname(BASE_DIR))  # go up 2 levels
+PROJECT_ROOT = os.path.dirname(BASE_DIR)
 
 csv_path = os.path.join(
     PROJECT_ROOT,

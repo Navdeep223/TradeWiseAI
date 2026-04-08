@@ -1,84 +1,122 @@
-# TradeWiseAI
+# 🚀 TradeWise AI
 
-AI-Powered Tariff Intelligence and Trade Optimization System
+## 📌 Overview
+TradeWise AI is an AI-powered platform that optimizes global trade routes by analyzing tariffs, freight costs, and supply chain data. It helps businesses identify the most cost-effective and efficient shipping paths using data-driven intelligence.
 
-Overview
-TradeWise AI is a backend-driven tariff intelligence engine designed to process international trade data and enable structured tariff analysis at the HS6 level.
-The system transforms raw tariff datasets into a normalized master tariff matrix and integrates an AI-based HS code classification layer for product description mapping.
-The objective is to provide a scalable foundation for intelligent trade decision-making and automated tariff comparison.
+---
 
-Problem Statement
-Importers and analysts face several challenges:
-Complex HS classification systems
-Fragmented tariff datasets across countries
-Manual tariff lookup processes
-Inefficient multi-country comparison
+## 🎯 Problem Statement
+Global logistics is complex due to:
+- Fluctuating tariff policies  
+- Dynamic freight pricing  
+- Multiple route options  
 
-TradeWise AI addresses these issues through automated preprocessing, structured datasets, and AI-driven classification.
+Businesses often struggle to select the optimal trade route, leading to increased costs and delays.
 
-System Architecture
-1. Data Processing Pipeline
-Raw tariff data extraction from WITS
-HS8 to HS6 normalization
-Country-specific tariff cleaning
-Master tariff matrix construction
-Structured CSV generation for backend use
+---
 
-2. AI Classification Layer
-NLP-based product description encoding
-Embedding-based semantic similarity matching
-HS6 prediction from natural language input
+## 💡 Solution
+TradeWise AI leverages machine learning and real-time data to:
+- Analyze multiple international trade routes  
+- Predict cost variations and risks  
+- Recommend optimal shipping strategies  
 
-4. Tariff Lookup Engine
-Efficient tariff retrieval using structured datasets
-Multi-country comparison at HS6 level
-Backend-ready integration via API
+---
 
-Project Structure
-makethon/
-│
-├── backend2/
-│   ├── main.py
-│   ├── hs_classifier.py
-│   ├── hs_routes.py
-│   ├── tariff_loader.py
-│
-├── data/
-│   ├── processed/
-│   ├── raw/  (ignored)
-│
-├── dataset/
-│   ├── build_tariff_matrix.py
-│   ├── preprocess_tariffs.py
-│   ├── final_clean_master.py
-│   ├── sanity_check.py
-│
-├── .gitignore
-└── README.md
+## ⚙️ Key Features
+- 📊 Intelligent trade route optimization  
+- 💰 Cost comparison across multiple routes  
+- 🔄 Dynamic rerouting based on real-time data  
+- 📈 Decision-support insights for businesses  
 
-Countries Covered
+---
 
-MFN tariff data processed at HS6 level for:
-India – China
-India – Japan
-India – Republic of Korea
-India – UAE
-India – Vietnam
+## 📸 Screenshots
 
-Technology Stack
-Python
-FastAPI
-Pandas
-Sentence Transformers (HuggingFace)
-Uvicorn
+| AI Route | Shipment Config |
+|----------|----------------|
+| ![AI](images/ai_optimized_route.jpeg) | ![Shipment](images/configure_shipment.png) |
 
-CSV-based structured datasets
+| Landing Page | Manual Route |
+|-------------|-------------|
+| ![Landing](images/landing_page.png) | ![Manual](images/manual_route.png) |
 
-Key Features:
-HS6 code classification from product descriptions
-Master tariff matrix generation
-Clean multi-country tariff comparison
-Structured backend-ready data architecture
-=======
-# TradeWiseAI
->>>>>>> 191a11fb59924c4d0a380867a28e6c841ca87214
+---
+
+## 🔧 Tech Stack
+
+**Programming Languages**
+- Python  
+
+**Libraries & Frameworks**
+- Pandas, NumPy, Scikit-learn  
+- Flask / FastAPI  
+
+**Tools**
+- Git, GitHub  
+
+**Concepts**
+- Machine Learning  
+- Route Optimization  
+- Data Analysis  
+
+---
+
+## 📊 Results & Impact
+- Achieved up to **30% reduction in logistics costs**  
+- Improved decision-making efficiency in trade route selection  
+- Demonstrated practical application in real-world supply chain scenarios  
+
+---
+
+## 🧠 Machine Learning Approach
+- Utilized models such as **Random Forest / Regression**  
+- Analyzed datasets including:
+  - Tariff structures  
+  - Freight pricing  
+  - Route distances  
+- Focused on minimizing:
+  - Cost  
+  - Delivery time  
+
+---
+
+## ▶️ How to Run
+
+```bash
+# Clone repository
+git clone https://github.com/Navdeep223/TradeWiseAI
+
+# Navigate to project directory
+cd TradeWiseAI
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the application
+python app.py
+
+---
+
+## 🚀 Future Enhancements
+- Integration of deep learning models  
+- Real-time global trade API expansion  
+- Interactive web dashboard for visualization  
+- Advanced predictive analytics  
+
+---
+
+## 🏆 Achievements
+- 🥈 Secured **2nd place at Stack Sprint 1.0 Hackathon**  
+- Recognized for innovation in AI-driven trade optimization  
+
+---
+
+## 👨‍💻 Contributors
+- **Navdeep Sharma**  
+- **Pranav Dubey**
+
+---
+
+## ⭐ Support
+If you like this project, consider giving it a ⭐ on GitHub!

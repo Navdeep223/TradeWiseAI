@@ -1,0 +1,15 @@
+origin_country,origin_port,destination_country,destination_port,mode,container_type,rate_usd
+China,CNSHA,India,INNSA,sea,40ft,1249.0
+Japan,JPYOK,India,INNSA,sea,40ft,2065.0
+Korea,KRPUS,India,INNSA,sea,40ft,1759.0
+Vietnam,VNHPH,India,INNSA,sea,40ft,1657.0
+UAE,AEDXB,India,INNSA,sea,40ft,1100.0
+China,CNSHA,Japan,JPYOK,sea,40ft,831.0
+China,CNSHA,Korea,KRPUS,sea,40ft,729.0
+China,CNSHA,Vietnam,VNHPH,sea,40ft,459.0
+China,CNSHA,UAE,AEDXB,sea,40ft,1285.0
+Vietnam,VNSGN,China,CNSHA,sea,40ft,999.0
+Vietnam,VNSGN,Japan,JPYOK,sea,40ft,1219.0
+Vietnam,VNSGN,Korea,KRPUS,sea,40ft,1092.0
+Vietnam,VNSGN,UAE,AEDXB,sea,40ft,1575.0
+Japan,JPYOK,UAE,AEDXB,sea,40ft,2276.88
