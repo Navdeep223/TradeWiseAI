@@ -78,7 +78,7 @@ TradeWise AI leverages machine learning and real-time data to:
 
 ## 🧠 Machine Learning Approach
 - Utilized models such as 
-  ** Random Forest for route optimization  
+    ** Random Forest for route optimization  
      Regression models for cost prediction  **
 
 - Analyzed datasets including:
