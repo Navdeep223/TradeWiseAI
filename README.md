@@ -33,13 +33,20 @@ TradeWise AI leverages machine learning and real-time data to:
 
 ## 📸 Screenshots
 
-| AI Route | Shipment Config |
-|----------|----------------|
-| ![AI](images/ai_optimized_route.jpeg) | ![Shipment](images/configure_shipment.png) |
+### 🔹 Landing Page
+![Landing](images/landing_page.png)
 
-| Landing Page | Manual Route |
-|-------------|-------------|
-| ![Landing](images/landing_page.png) | ![Manual](images/manual_route.png) |
+### 🔹 Product Description
+![Product](images/product_description.png)
+
+### 🔹 Shipment Configuration
+![Shipment](images/configure_shipment.png)
+
+### 🔹 AI Optimized Route
+![AI Route](images/ai_optimized_route.jpeg)
+
+### 🔹 Manual Route Selection
+![Manual Route](images/manual_route.png)
 
 ---
 
